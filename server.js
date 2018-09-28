@@ -1,4 +1,6 @@
 /*global __dirname*/
+
+console.log('Server start on');
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -10,11 +12,16 @@ var mongoose = require('mongoose');
 var fs = require('fs');
 var CronJob = require('cron').CronJob;
 
+var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
+    ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
+    mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || process.env.MONGO_URL,
+    mongoURLLabel = "";
+
 var dbConnectionString = 'mongodb://localhost/houseTracking-v2';
 
 //init bdd
 if (process.env.OPENSHIFT_MONGODB_DB_URL) {
-  dbConnectionString = process.env.OPENSHIFT_MONGODB_DB_URL + 'tracker';
+  dbConnectionString =mongoURL + 'tracker';
 }
 
 console.log('[database] Try to connect:' + dbConnectionString);
@@ -74,7 +81,7 @@ fs.readdirSync(__dirname + '/routes').forEach(function (file) {
 
 if (process.env.OPENSHIFT_MONGODB_DB_URL) {
     var Job = require('./adapter/job.js');
-    
+
     // manage cron
     new CronJob({
         cronTime: '0 0 */4 * * *',
@@ -85,7 +92,7 @@ if (process.env.OPENSHIFT_MONGODB_DB_URL) {
         start: false,
         timeZone: 'America/Los_Angeles'
     }).start();
-    
+
     new CronJob('0 0 23 * * *', function () {
         console.log('[CRON] - clean');
         Job.clean();
@@ -123,5 +130,7 @@ app.use(function(err, req, res, next) {
   });
 });
 
+app.listen(port, ip);
+console.log('Server running on http://%s:%s', ip, port);
 
 module.exports = app;
