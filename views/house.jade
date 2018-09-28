@@ -1,0 +1,91 @@
+extends layout
+
+block content
+    h1= count + ' ' + title
+
+    each model in models
+        div(id=model.id)
+            div(class="row")
+                h3(class="col-sm-12")
+                    a(href=model.url, target="_blank")
+                        span= model.title
+                    div(class='pull-right tags')
+                        span(class='label label-primary')= model.price_formated + '€'
+                        a(href='/house/' + model.location)
+                            button(class='btn btn-info')= model.location
+                        span(class="dropdown")
+                            button(class="btn btn-default dropdown-toggle", type="button", id="dropdownMenu1", data-toggle="dropdown", aria-haspopup="true", aria-expanded="true")
+                                span(class="glyphicon glyphicon-cog")
+                                span(class="caret")
+                            ul(class="dropdown-menu", aria-labelledby="dropdownMenu1")
+                                li
+                                    a(href="#", data-id=model.id, data-favorite=model.favorite, onclick="javascript:addToFavorite(this)")
+                                        i(class=model.favorite === true ? "mdi-action-favorite" : "mdi-action-favorite-outline")
+                                        span Favoris
+                                    a(href="#", data-id=model.id, onclick="javascript:proceedRemove(this)")
+                                        i(class="mdi-action-delete")
+                                        span Supprimer
+                                    //a(href="#") Action2
+                                    //a(href="#") Action3
+            div(class="row", style="clear: both")
+                div(class='col-sm-3')
+                    img(class='img-responsive lazyload', data-src=model.preview)
+
+                div(class='col-sm-9 description') !{model.desc}
+            div(class="row")
+                div(class="col-sm-12 text-right help-text") #{model.adapter}, #{moment(model.time, null, 'fr').fromNow()}
+            div(class="divider")
+
+
+    script(type='text/javascript').
+        var decreaseCount = function () {
+            $(document).find('h1').text($(document).find('h1').html().replace(/(\d+)/g, function (match, group1) {
+                return (parseInt(group1, 10) - 1);
+            }));
+        };
+
+        var proceedRemove = function (item) {
+            console.log();
+            var id = $(item).attr('data-id'),
+                wrapper = $(document).find('#' + id);
+
+            $.ajax('/house', {
+                method: 'DELETE',
+                data: {
+                    id: id
+                },
+                success: function () {
+                    wrapper.remove();
+                    decreaseCount();
+                    //manage success alert
+                }
+            });
+        };
+
+        var addToFavorite = function (item) {
+            var id = $(item).attr('data-id'),
+                favorite = $(item).attr('data-favorite') === undefined || $(item).attr('data-favorite') === false,
+                wrapper = $(document).find('#' + id);
+
+            $.ajax('/house', {
+                method: 'PUT',
+                data: {
+                    id: id,
+                    favorite: favorite
+                },
+                success: function () {
+                    $(item).attr('data-favorite', favorite);
+                    if (favorite) {
+                        $(item).find('i').removeClass('mdi-action-favorite-outline').addClass('mdi-action-favorite');
+                    } else {
+                        $(item).find('i').removeClass('mdi-action-favorite').addClass('mdi-action-favorite-outline');
+
+                        if(location.pathname.indexOf('favorite') > -1){
+                            wrapper.remove();
+                            decreaseCount();
+                        }
+                    }
+                    //manage success alert
+                }
+            });
+        };

@@ -1,0 +1,97 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+
+    title= title
+
+    link(rel='icon' href='/favicon.ico')
+    link(rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/material.min.css')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/ripples.min.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+
+    script(src='http://code.jquery.com/jquery-2.1.4.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/js/material.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/js/ripples.min.js')
+    script(src='https://cdn.rawgit.com/aFarkas/lazysizes/gh-pages/lazysizes.min.js')
+
+
+
+  body
+
+
+
+    nav(class='navbar navbar-default navbar-fixed-top')
+      div(class='container')
+        div(class='navbar-header')
+          button(type='button', class='navbar-toggle collapsed', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
+              span(class='sr-only') Toggle navigation
+              span(class='icon-bar')
+              span(class='icon-bar')
+              span(class='icon-bar')
+          a(class='navbar-brand' href='/house')
+            img(class="logo", src="/images/Webizgood-only-logo-30px.png")
+            span House Finder
+        div(id="navbar" class="navbar-collapse collapse")
+            ul(class="nav navbar-nav")
+                li(class='/house' === url && 'active')
+                    a(href="/house")
+                        i(class='mdi-action-home')
+                        span Maison
+                li(class='/house/favorite' === url && 'active')
+                    a(href="/house/favorite")
+                        i(class='mdi-action-favorite')
+                        span Favoris
+                li(class='/location' === url && 'active')
+                    a(href="/location")
+                        i(class='mdi-maps-my-location')
+                        span Villes
+                li(class='/adapter' === url && 'active')
+                    a(href="/adapter")
+                        i(class='mdi-action-assessment')
+                        span Sites
+            form(class='navbar-form navbar-left')
+                input(type='text',class='form-control col-lg-8', placeholder='Search')
+
+    div(class='container-fluid')
+      block content
+
+script(type='text/javascript').
+    $.material.init();
+
+    //sticky nav
+    var didScroll;
+    var lastScrollTop = 0;
+    var delta = 5;
+    var navbarHeight = $('nav').outerHeight();
+    $(window).scroll(function (event) {
+        didScroll = true;
+    });
+    setInterval(function () {
+        if (didScroll) {
+            hasScrolled();
+            didScroll = false;
+        }
+    }, 250);
+    function hasScrolled() {
+        var st = $(this).scrollTop();
+        // Make sure they scroll more than delta
+        if (Math.abs(lastScrollTop - st) <= delta)
+            return;
+        // If they scrolled down and are past the navbar, add class .nav-up.
+        // This is necessary so you never see what is "behind" the navbar.
+        if (st > lastScrollTop && st > navbarHeight) {
+            // Scroll Down
+            $('nav').addClass('navbar-fixed-top-hidden');
+        } else {
+            // Scroll Up
+            if (st + $(window).height() < $(document).height()) {
+                $('nav').removeClass('navbar-fixed-top-hidden');
+            }
+        }
+        lastScrollTop = st;
+    }
